@@ -39,8 +39,8 @@ def call_gemini(prompt: str, response_schema: type[T] | None = None) -> T | str 
             if not response.text:
                 return None
 
-            print("Raw Response - Gemini")
-            print(response.text)
+            # print("Raw Response - Gemini")
+            # print(response.text)
 
             if response_schema:
                 return response_schema.model_validate_json(response.text)

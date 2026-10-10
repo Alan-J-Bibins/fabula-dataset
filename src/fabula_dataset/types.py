@@ -51,40 +51,31 @@ class Caregiver(BaseModel):
 
 class LearnerProfile(BaseModel):
     id: str
-    therapistId: str
     learnerId: Optional[str] = None
     name: str
     age: int
     gender: GenderEnum
     nationality: Optional[str] = None
-    avatar: Optional[str] = None
-
     primaryLanguage: List[str] = Field(default_factory=list)
     primaryLanguageOther: Optional[str] = None
     secondaryLanguage: List[str] = Field(default_factory=list)
     secondaryLanguageOther: Optional[str] = None
-
     familyMembers: List[FamilyMember] = Field(default_factory=list)
     caregivers: List[Caregiver] = Field(default_factory=list)
-
     verbalAbility: VerbalAbilityEnum
     functionalWordRange: Optional[FunctionalWordRangeEnum] = None
     communicationModality: List[CommunicationModalityType] = Field(default_factory=list)
-
     sensoryProfile: Dict[str, str] = Field(default_factory=dict)
     sensoryPreferences: Dict[str, str] = Field(default_factory=dict)
     sensoryTriggers: Dict[str, str] = Field(default_factory=dict)
     sensoryNotes: Optional[str] = None
-
     interests: List[str] = Field(default_factory=list)
     reinforcers: List[str] = Field(default_factory=list)
     preferredFoods: List[str] = Field(default_factory=list)
     preferredActivities: List[str] = Field(default_factory=list)
-
     primaryEnvironment: List[EnvironmentType] = Field(default_factory=list)
     primaryEnvironmentOther: Optional[str] = None
     secondaryEnvironment: List[EnvironmentType] = Field(default_factory=list)
     secondaryEnvironmentOther: Optional[str] = None
-
     createdAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updatedAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
