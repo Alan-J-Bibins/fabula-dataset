@@ -1,3 +1,4 @@
+import random
 import json
 import time
 from typing import Any, Literal, TypeVar
@@ -26,7 +27,7 @@ def sanitize_schema(schema: Any) -> Any:
 
 def call_llm(
     prompt: str,
-    model: Literal["gemini", "openrouter-gemini"],
+    model: Literal["gemini", "openrouter-gemini", "fanar-gemini"],
     response_schema: type[T] | None = None,
 ) -> T | str | None:
     match model:
@@ -34,6 +35,8 @@ def call_llm(
             return call_gemini(prompt, response_schema)
         case "openrouter-gemini":
             return call_openrouter(prompt, response_schema)
+        case "fanar-gemini":
+            return call_fanar_gateway(prompt, response_schema)
 
 
 def call_gemini(prompt: str, response_schema: type[T] | None = None) -> T | str | None:
@@ -86,6 +89,42 @@ def call_gemini(prompt: str, response_schema: type[T] | None = None) -> T | str 
     return None
 
 
+def call_fanar_gateway(
+    prompt: str, response_schema: type[T] | None = None
+) -> T | str | None:
+    if response_schema:
+        json_schema = json.dumps(response_schema.model_json_schema(), indent=2)
+        prompt = (
+            f"{prompt}\n"
+            f"Respond ONLY with a single valid JSON object matching this exact schema:\n\n{json_schema}\n\n"
+            f"No other text should be present in the response, return only the json object without any markdown formatting. "
+            f"Avoid surrounding the json in backticks or '```json```'. Simply return the raw json."
+        )
+
+    client = OpenAI(
+        base_url="https://ai-models-gw.fanar.qcri.org/v1",
+        api_key=config.google_gemini_api_key,
+    )
+
+    response = client.chat.completions.create(
+        model="google/gemini-3.5-flash",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.2,
+        seed=random.randint(0, 2**31 - 1),
+    )
+
+    content = response.choices[0].message.content
+    if not content:
+        return None
+
+    print("Raw Response - OpenRouter Gemini")
+    print(content)
+
+    if response_schema:
+        return response_schema.model_validate_json(content)
+    return content
+
+
 def call_openrouter(
     prompt: str, response_schema: type[T] | None = None
 ) -> T | str | None:
@@ -104,9 +143,10 @@ def call_openrouter(
     )
 
     response = client.chat.completions.create(
-        model="google/gemini-3.5-flash-lite",
+        model="google/gemini-3.5-flash",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.2,
+        seed=random.randint(0, 2**31 - 1),
     )
 
     content = response.choices[0].message.content
