@@ -13,10 +13,8 @@ class LLMResponse(BaseModel):
 
 
 def generate_master_profile(
-    number_of_profiles: int = 10, filename: str = "master-profiles.csv"
+    number_of_profiles: int = 10, filename: str = "profiles.csv"
 ):
-    filename = "master-profiles.csv"
-
     # Prompt refined by Gemini
     prompt = f"""You are a specialized clinical data synthesizer expert in autism spectrum disorder (ASD) and special education. 
     Your task is to generate a batch of {number_of_profiles} highly diverse, realistic, and clinically coherent learner profiles that conform strictly to the provided response schema.
@@ -34,7 +32,7 @@ def generate_master_profile(
     """
 
     llm_response = call_llm(
-        model="gemini",
+        model="openrouter-gemini",
         response_schema=LLMResponse,
         prompt=prompt,
     )
@@ -51,9 +49,26 @@ def generate_master_profile(
 
 
 if __name__ == "__main__":
-    [number_of_profiles, filename] = sys.argv[1:]
-    print("Number of profiles: ", number_of_profiles)
-    print("Filename: ", filename)
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Generate synthetic learner profiles via LLM."
+    )
+    parser.add_argument(
+        "number_of_profiles",
+        type=int,
+        help="Number of profiles to generate",
+    )
+    parser.add_argument(
+        "filename",
+        type=str,
+        help="Output CSV filename",
+    )
+    args = parser.parse_args()
+
+    print("Number of profiles: ", args.number_of_profiles)
+    print("Filename: ", args.filename)
     generate_master_profile(
-        number_of_profiles=int(number_of_profiles), filename=filename
+        number_of_profiles=args.number_of_profiles,
+        filename=args.filename,
     )
