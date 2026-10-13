@@ -143,7 +143,7 @@ def call_openrouter(
     )
 
     response = client.chat.completions.create(
-        model="google/gemini-3.5-flash",
+        model="gemini-3.8-flash",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.2,
         seed=random.randint(0, 2**31 - 1),
