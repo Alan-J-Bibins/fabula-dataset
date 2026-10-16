@@ -1,4 +1,4 @@
-import sys
+import argparse
 import csv
 from pydantic import BaseModel, Field
 
@@ -49,9 +49,7 @@ def generate_master_profile(
             writer.writerow(profile.model_dump())
 
 
-if __name__ == "__main__":
-    import argparse
-
+def main():
     parser = argparse.ArgumentParser(
         description="Generate synthetic learner profiles via LLM."
     )
@@ -73,3 +71,7 @@ if __name__ == "__main__":
         number_of_profiles=args.number_of_profiles,
         filename=args.filename,
     )
+
+
+if __name__ == "__main__":
+    main()
